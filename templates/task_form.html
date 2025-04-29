@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>创建新任务</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background: #34495e;
+        }
+        .nav a.active {
+            background: #3498db;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-cancel {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .error-message {
+            color: #e74c3c;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fadbd8;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-container">
+            <a href="/vulnerabilities">漏洞详情</a>
+            <a href="/tasks">任务列表</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>创建新任务</h1>
+        
+        {{if .error}}
+        <div class="error-message">{{.error}}</div>
+        {{end}}
+        
+        <form action="/tasks" method="POST">
+            <div class="form-group">
+                <label for="projectName">项目名称</label>
+                <input type="text" id="projectName" name="projectName" class="form-control" value="{{.task.ProjectName}}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="targetURL">目标URL</label>
+                <input type="url" id="targetURL" name="targetURL" class="form-control" value="{{.task.TargetURL}}" 
+                       placeholder="例如: https://example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>扫描类型</label>
+                <div>
+                    <label style="display: inline-block; margin-right: 20px;">
+                        <input type="radio" name="scanType" value="full" 
+                               {{if eq .task.ScanType "full"}}checked{{end}} checked>
+                        全部扫描
+                    </label>
+                    <label style="display: inline-block;">
+                        <input type="radio" name="scanType" value="custom" 
+                               {{if eq .task.ScanType "custom"}}checked{{end}}>
+                        自定义扫描
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="button" onclick="window.location.href='/tasks'" class="btn btn-cancel">取消</button>
+                <button type="submit" class="btn btn-primary">创建任务</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html> 

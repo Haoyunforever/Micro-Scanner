@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>项目详情</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f1c40f;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .nav {
+            background: linear-gradient(135deg, var(--dark-color), #34495e);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .nav a:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav a.active {
+            background: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .info-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .info-section h3 {
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .info-table th,
+        .info-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status.running {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.pending {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.safe {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .severity {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .severity-high {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #c0392b;
+        }
+
+        .severity-medium {
+            background-color: rgba(241, 196, 15, 0.1);
+            color: #d35400;
+        }
+
+        .severity-low {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+        }
+
+        .button-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .scan-status {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f8f9fa;
+        }
+
+        .scan-progress {
+            margin: 10px 0;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #3498db;
+            width: 0;
+            transition: width 0.3s ease;
+        }
+
+        .scan-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+
+        .log-entry {
+            padding: 0.5rem;
+            border-left: 3px solid transparent;
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .log-entry:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .log-entry.vuln {
+            border-left-color: var(--danger-color);
+        }
+
+        .log-entry.progress {
+            border-left-color: var(--primary-color);
+        }
+
+        .log-entry.error {
+            color: #721c24;
+            background-color: #f8d7da;
+        }
+
+        .realtime-vuln-table {
+            margin: 20px 0;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .realtime-vuln-table .info-table {
+            margin: 0;
+        }
+
+        .realtime-vuln-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            font-weight: bold;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .realtime-vuln-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .realtime-vuln-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 5px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .scan-status-section {
+            margin-top: 20px;
+        }
+
+        .scan-log-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .log-header {
+            padding: 15px;
+            background: #2c3e50;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-header h6 {
+            color: white;
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .log-content {
+            background: #1e1e1e;
+            color: #e0e0e0;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            font-family: 'Consolas', monospace;
+            line-height: 1.6;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 6px;
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .log-entry.command {
+            color: #64B5F6;
+            background-color: rgba(100, 181, 246, 0.1);
+            border-left: 4px solid #2196F3;
+        }
+
+        .log-entry.progress {
+            color: #81C784;
+            background-color: rgba(129, 199, 132, 0.1);
+            border-left: 4px solid #4CAF50;
+        }
+
+        .log-entry.vuln {
+            color: #FF8A65;
+            background-color: rgba(255, 138, 101, 0.1);
+            border-left: 4px solid #FF5722;
+            font-weight: bold;
+        }
+
+        .log-entry.error {
+            color: #E57373;
+            background-color: rgba(229, 115, 115, 0.1);
+            border-left: 4px solid #F44336;
+        }
+
+        .log-entry.success {
+            color: #81C784;
+            background-color: rgba(129, 199, 132, 0.1);
+            border-left: 4px solid #4CAF50;
+        }
+
+        .log-entry.warning {
+            color: #FFD54F;
+            background-color: rgba(255, 213, 79, 0.1);
+            border-left: 4px solid #FFC107;
+        }
+
+        .log-entry.output {
+            color: #B2EBF2;
+            background-color: rgba(178, 235, 242, 0.1);
+            border-left: 4px solid #00BCD4;
+            font-family: Consolas, Monaco, 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .progress {
+            height: 8px !important;
+            border-radius: 4px;
+            background-color: #eee;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        #scanProgress {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.5s ease;
+        }
+
+        .btn-outline-secondary {
+            color: white;
+            border-color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: white;
+            color: #2c3e50;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge-running {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+        }
+
+        .badge-completed {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .badge-error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .badge-terminated {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .vulnerability-list {
+            margin-top: 20px;
+        }
+
+        .vulnerability-item {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #eee;
+            transition: var(--transition);
+        }
+
+        .vulnerability-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .vuln-header h3 {
+            margin: 0;
+            color: var(--dark-color);
+            font-size: 1.2rem;
+        }
+
+        .vuln-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .vuln-details {
+            margin-left: 20px;
+        }
+
+        .scan-status-wrapper {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .scan-status-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .progress-wrapper {
+            padding: 0 10px;
+        }
+
+        .progress {
+            height: 25px !important;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        #scanProgress {
+            background-color: #00c853;
+            transition: width 0.3s ease;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 25px;
+            color: white;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .badge {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .badge-running {
+            background-color: #00c853;
+            color: white;
+        }
+
+        .badge-completed {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .badge-error {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .badge-terminated {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        /* 添加动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .vulnerability-item {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* 添加响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .vulnerability-item {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .vulnerability-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .vuln-status .status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .vuln-status .status.error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+
+        .vuln-description {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .vuln-description pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .scan-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+            min-width: 150px;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .text-danger {
+            color: var(--danger-color) !important;
+        }
+
+        .text-success {
+            color: var(--secondary-color) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-container">
+            <a href="/dashboard">仪表盘</a>
+            <a href="/projects" class="active">项目管理</a>
+            <a href="/vulnerabilities">漏洞管理</a>
+            <a href="/tasks">任务列表</a>
+            <div style="margin-left: auto;">
+                <a href="/logout">退出登录</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>项目详情</h1>
+
+        <div class="info-section">
+            <h3>项目信息</h3>
+            <table class="info-table">
+                <tr>
+                    <th>项目名称</th>
+                    <td>{{.project.Name}}</td>
+                </tr>
+                <tr>
+                    <th>目标URL</th>
+                    <td>{{.project.TargetURL}}</td>
+                </tr>
+                <tr>
+                    <th>扫描类型</th>
+                    <td>{{if eq .project.ScanType "full"}}完整扫描{{else}}自定义扫描{{end}}</td>
+                </tr>
+                <tr>
+                    <th>扫描状态</th>
+                    <td>
+                        {{if .project.IsScanning}}
+                            <span class="status running">进行中</span>
+                        {{else if .project.IsScanned}}
+                            <span class="status completed">已完成</span>
+                        {{else}}
+                            <span class="status pending">未开始</span>
+                        {{end}}
+                    </td>
+                </tr>
+                <tr>
+                    <th>创建时间</th>
+                    <td>{{formatTime .project.CreatedAt}}</td>
+                </tr>
+                {{if .project.LastScanTime}}
+                <tr>
+                    <th>最后扫描时间</th>
+                    <td>{{formatTime .project.LastScanTime}}</td>
+                </tr>
+                {{end}}
+                <tr>
+                    <th>项目描述</th>
+                    <td>{{.project.Description}}</td>
+                </tr>
+            </table>
+        </div>
+
+        {{if and (eq .project.ScanType "custom") .pocInfos}}
+        <div class="info-section">
+            <h3>POC扫描详情</h3>
+            <table class="info-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>POC名称</th>
+                        <th>扫描结果</th>
+                        <th>扫描时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $index, $poc := .pocInfos}}
+                    <tr>
+                        <td>{{add $index 1}}</td>
+                        <td>{{$poc.Name}}</td>
+                        <td>
+                            {{if $poc.HasVulnerability}}
+                                <span class="status error">发现漏洞</span>
+                            {{else}}
+                                <span class="status safe">未发现漏洞</span>
+                            {{end}}
+                        </td>
+                        <td>{{$poc.ScanTime}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        {{end}}
+
+        {{if .project.LastScanTime}}
+        <div class="info-section">
+            <h3>漏洞检测结果</h3>
+            {{if .project.IsScanning}}
+            <div class="scan-status-wrapper">
+                <div class="scan-status-header">
+                    <span class="badge" id="scanStatusBadge">{{.project.ScanStatus}}</span>
+                </div>
+                <div class="progress-wrapper">
+                    <div class="progress">
+                        <div id="scanProgress" class="progress-bar" 
+                             role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+            <div class="vulnerability-list" id="vulnerabilityList">
+                {{range .vulnInfos}}
+                <div class="vulnerability-item" data-vuln-name="{{.Name}}">
+                    <div class="vuln-header">
+                        <h3>{{.Name}}</h3>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>严重程度：</strong><span class="severity-{{lower .Severity}}">{{.Severity}}</span></p>
+                        <p><strong>扫描时间：</strong>{{.ScanTime}}</p>
+                        <p><strong>漏洞状态：</strong>{{if .HasVulnerability}}<span class="status error">存在</span>{{else}}<span class="status safe">不存在</span>{{end}}</p>
+                        {{if .Description}}
+                        <p><strong>详细信息：</strong>{{.Description}}</p>
+                        {{end}}
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+
+        <div class="button-group">
+            {{if not .project.IsScanning}}
+                <button class="btn btn-primary" onclick="startScan({{.project.ID}})">开始扫描</button>
+            {{else}}
+                <button class="btn btn-warning" onclick="stopScan({{.project.ID}})">终止扫描</button>
+            {{end}}
+            {{if .project.IsScanned}}
+                <a href="/projects/{{.project.ID}}/export" class="btn btn-success">导出结果</a>
+            {{end}}
+            <button class="btn btn-danger" onclick="deleteProject({{.project.ID}})">删除项目</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量和工具函数
+        const Toast = {
+            show(message, type = 'info', duration = 10000) {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.classList.add('show');
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => toast.remove(), 300);
+                    }, duration);
+                }, 100);
+            }
+        };
+
+        // 扫描状态管理
+        const ScanManager = {
+            updateProgress(progress) {
+                const progressBar = document.getElementById('scanProgress');
+                if (progressBar) {
+                    progressBar.style.width = `${progress}%`;
+                    progressBar.textContent = `${progress}%`;
+                    progressBar.style.background = `linear-gradient(90deg, 
+                        var(--primary-color) ${progress}%, 
+                        var(--secondary-color) ${progress + 20}%)`;
+                }
+            },
+
+            updateStatus(status) {
+                const badge = document.getElementById('scanStatusBadge');
+                if (badge) {
+                    badge.className = 'badge';
+                    badge.classList.add(`badge-${status}`);
+                    
+                    const statusText = {
+                        'running': '扫描中',
+                        'completed': '已完成',
+                        'error': '错误',
+                        'terminated': '已终止'
+                    }[status] || '未知状态';
+                    
+                    badge.innerHTML = `
+                        <span class="status-icon"></span>
+                        ${statusText}
+                    `;
+                }
+            }
+        };
+
+        // 漏洞管理
+        const VulnerabilityManager = {
+            createVulnerabilityElement(vulnInfo) {
+                console.log('创建漏洞元素:', vulnInfo);
+                const element = document.createElement('div');
+                element.className = 'vulnerability-item';
+                element.setAttribute('data-vuln-name', vulnInfo.name);
+                
+                const displayName = vulnInfo.name || '未知漏洞';
+                
+                element.innerHTML = `
+                    <div class="vuln-header">
+                        <h3>${displayName}</h3>
+                        <div class="vuln-status">
+                            <span class="status error">存在</span>
+                        </div>
+                    </div>
+                    <div class="vuln-details">
+                        <p><strong>扫描时间：</strong>${vulnInfo.scanTime}</p>
+                        <p><strong>目标地址：</strong>${vulnInfo.url ? `<a href="${vulnInfo.url}" target="_blank">${vulnInfo.url}</a>` : '无'}</p>
+                        <p><strong>严重程度：</strong><span class="severity severity-${(vulnInfo.severity || 'high').toLowerCase()}">${vulnInfo.severity || 'High'}</span></p>
+                        ${vulnInfo.details ? `
+                        <div class="vuln-description">
+                            <strong>详细信息：</strong>
+                            <pre>${vulnInfo.details}</pre>
+                        </div>` : ''}
+                    </div>
+                `;
+                
+                return element;
+            },
+
+            updateVulnerabilityList(vulnInfo) {
+                console.log('更新漏洞列表:', vulnInfo);
+                const vulnerabilityList = document.getElementById('vulnerabilityList');
+                if (!vulnerabilityList) return;
+
+                const existingVuln = document.querySelector(`[data-vuln-name="${vulnInfo.name}"]`);
+                
+                if (existingVuln) {
+                    this.updateExistingVulnerability(existingVuln, vulnInfo);
+                } else {
+                    const vulnElement = this.createVulnerabilityElement(vulnInfo);
+                    vulnerabilityList.appendChild(vulnElement);
+                    
+                    // 添加出现动画
+                    requestAnimationFrame(() => vulnElement.classList.add('show'));
+                }
+            },
+
+            updateExistingVulnerability(element, vulnInfo) {
+                if (vulnInfo.url) {
+                    const urlElement = element.querySelector('.vuln-url');
+                    if (urlElement) {
+                        urlElement.href = vulnInfo.url;
+                        urlElement.textContent = vulnInfo.url;
+                    }
+                }
+
+                const statusSpan = element.querySelector('.status');
+                if (statusSpan) {
+                    statusSpan.className = 'status error';
+                    statusSpan.textContent = '存在';
+                }
+
+                if (vulnInfo.details) {
+                    const descElement = element.querySelector('.vuln-details p:last-child');
+                    if (descElement) {
+                        descElement.innerHTML = `<strong>详细信息：</strong>${vulnInfo.details}`;
+                    }
+                }
+            }
+        };
+
+        // WebSocket连接管理
+        function connectWebSocket(projectId) {
+            const ws = new WebSocket(`ws://${window.location.host}/ws/scan/${projectId}`);
+            
+            ws.onopen = () => {
+                console.log('WebSocket连接已建立');
+                Toast.show('已连接到扫描服务器', 'success');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket连接已关闭，正在重新连接...');
+                Toast.show('与扫描服务器的连接已断开，正在重新连接...', 'warning');
+                setTimeout(() => connectWebSocket(projectId), 1000);
+            };
+
+            ws.onerror = (err) => {
+                console.error('WebSocket错误:', err);
+                Toast.show('连接发生错误', 'error');
+            };
+        }
+
+        function handleWebSocketMessage(data) {
+            console.log('收到WebSocket消息:', data);
+            
+            switch(data.status) {
+                case 'progress':
+                    ScanManager.updateProgress(parseInt(data.message));
+                    break;
+                    
+                case 'status_change':
+                    ScanManager.updateStatus(data.message);
+                    break;
+                    
+                case 'vuln_found':
+                    handleVulnerabilityFound(data.message);
+                    break;
+                    
+                case 'completed':
+                case 'terminated':
+                    handleScanComplete(data.status);
+                    break;
+                    
+                case 'error':
+                    Toast.show(data.message, 'error');
+                    break;
+            }
+        }
+
+        function handleVulnerabilityFound(message) {
+            try {
+                console.log('处理漏洞信息:', message);
+                
+                if (typeof message === 'string') {
+                    if (message.includes('=== 扫描结果汇总 ===') || 
+                        message.includes('=== 漏洞扫描结果详情 ===')) {
+                        
+                        const vulnInfos = parseVulnerabilityInfo(message);
+                        vulnInfos.forEach(vulnInfo => {
+                            if (vulnInfo && vulnInfo.name && vulnInfo.hasVulnerability) {
+                                console.log('处理漏洞:', vulnInfo);
+                                VulnerabilityManager.updateVulnerabilityList(vulnInfo);
+                                Toast.show(`发现新漏洞: ${vulnInfo.name}`, 'warning', 10000);
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('解析漏洞信息失败:', e);
+                Toast.show('处理漏洞信息时发生错误', 'error');
+            }
+        }
+
+        function parseVulnerabilityInfo(message) {
+            console.log('开始解析漏洞信息:', message);
+            const lines = message.split('\n');
+            let vulnInfos = [];
+            let currentVulnInfo = null;
+            let isInSummarySection = false;
+            let isSummaryHeader = false;
+            let summaryHeaderSeen = false;
+            let totalVulns = 0;
+            let effectiveVulns = 0;
+
+            for (const line of lines) {
+                const lineContent = line.trim();
+                
+                // 检测汇总部分的开始
+                if (lineContent === '=== 扫描结果汇总 ===') {
+                    isInSummarySection = true;
+                    isSummaryHeader = true;
+                    continue;
+                }
+
+                // 处理统计信息
+                if (lineContent.includes('共检测') && lineContent.includes('个漏洞')) {
+                    const matches = lineContent.match(/共检测\s+(\d+)\s+个漏洞，其中存在\s+(\d+)\s+个有效漏洞/);
+                    if (matches) {
+                        totalVulns = parseInt(matches[1]);
+                        effectiveVulns = parseInt(matches[2]);
+                        // 添加统计信息到页面
+                        updateScanSummary(totalVulns, effectiveVulns);
+                    }
+                    continue;
+                }
+
+                // 如果在汇总部分内
+                if (isInSummarySection && lineContent) {
+                    // 跳过表头行
+                    if (isSummaryHeader) {
+                        if (!summaryHeaderSeen && lineContent.includes('漏洞名称')) {
+                            summaryHeaderSeen = true;
+                        }
+                        isSummaryHeader = false;
+                        continue;
+                    }
+
+                    // 处理汇总信息行
+                    if (summaryHeaderSeen && lineContent) {
+                        const parts = lineContent.split(/\s+/).filter(Boolean);
+                        if (parts.length >= 4) {
+                            currentVulnInfo = {
+                                name: parts[0],
+                                url: parts[1],
+                                hasVulnerability: parts[2].includes('存在漏洞'),
+                                severity: 'High',
+                                scanTime: parts[3],
+                                details: `目标地址: ${parts[1]}\n漏洞状态: ${parts[2]}\n发现时间: ${parts[3]}`
+                            };
+
+                            if (currentVulnInfo.hasVulnerability) {
+                                vulnInfos.push({...currentVulnInfo});
+                            }
+                        }
+                    }
+                }
+            }
+
+            console.log('解析到的漏洞信息列表:', vulnInfos);
+            return vulnInfos;
+        }
+
+        function updateScanSummary(total, effective) {
+            const summaryDiv = document.getElementById('scanSummary');
+            if (!summaryDiv) {
+                const vulnerabilityList = document.getElementById('vulnerabilityList');
+                if (vulnerabilityList) {
+                    const newSummaryDiv = document.createElement('div');
+                    newSummaryDiv.id = 'scanSummary';
+                    newSummaryDiv.className = 'scan-summary';
+                    newSummaryDiv.innerHTML = `
+                        <div class="summary-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">检测漏洞总数</span>
+                                <span class="stat-value">${total}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">有效漏洞数量</span>
+                                <span class="stat-value ${effective > 0 ? 'text-danger' : 'text-success'}">${effective}</span>
+                            </div>
+                        </div>
+                    `;
+                    vulnerabilityList.insertBefore(newSummaryDiv, vulnerabilityList.firstChild);
+                }
+            }
+        }
+
+        function handleScanComplete(status) {
+            const message = status === 'completed' ? '扫描完成' : '扫描已终止';
+            Toast.show(message, status === 'completed' ? 'success' : 'warning', 10000);
+            // 延长页面刷新时间到5秒
+            setTimeout(() => location.reload(), 5000);
+        }
+
+        // 项目操作函数
+        async function startScan(projectId) {
+            try {
+                const response = await fetch(`/projects/${projectId}/scan`, {
+                    method: 'POST',
+                });
+                const data = await response.json();
+                
+                if (data.message) {
+                    Toast.show(data.message, 'success');
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Toast.show('启动扫描失败', 'error');
+            }
+        }
+
+        async function stopScan(projectId) {
+            if (!confirm('确定要终止扫描吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/projects/${projectId}/scan/stop`, {
+                    method: 'POST',
+                });
+                const data = await response.json();
+                
+                if (data.message) {
+                    Toast.show(data.message, 'success');
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Toast.show('终止扫描失败', 'error');
+            }
+        }
+
+        async function deleteProject(projectId) {
+            if (!confirm('确定要删除该项目吗？此操作不可恢复！')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/projects/${projectId}`, {
+                    method: 'DELETE',
+                });
+                const data = await response.json();
+                
+                if (data.message) {
+                    Toast.show(data.message, 'success');
+                    window.location.href = '/projects';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Toast.show('删除项目失败', 'error');
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加Toast样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .toast {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 12px 24px;
+                    border-radius: 4px;
+                    background: white;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                    transform: translateY(-100%);
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                    z-index: 1000;
+                }
+                
+                .toast.show {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+                
+                .toast-success {
+                    background: var(--secondary-color);
+                    color: white;
+                }
+                
+                .toast-error {
+                    background: var(--danger-color);
+                    color: white;
+                }
+                
+                .toast-warning {
+                    background: var(--warning-color);
+                    color: white;
+                }
+                
+                .toast-info {
+                    background: var(--primary-color);
+                    color: white;
+                }
+                
+                .status-icon {
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    margin-right: 8px;
+                }
+                
+                .badge-running .status-icon {
+                    background: var(--primary-color);
+                    animation: pulse 1s infinite;
+                }
+                
+                .badge-completed .status-icon {
+                    background: var(--secondary-color);
+                }
+                
+                .badge-error .status-icon {
+                    background: var(--danger-color);
+                }
+                
+                .badge-terminated .status-icon {
+                    background: #95a5a6;
+                }
+                
+                @keyframes pulse {
+                    0% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.5); opacity: 0.5; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 初始化扫描状态
+            ScanManager.updateStatus('{{.project.ScanStatus}}');
+            
+            // 如果正在扫描，连接WebSocket
+            {{if .project.IsScanning}}
+            connectWebSocket({{.project.ID}});
+            {{end}}
+        });
+    </script>
+</body>
+</html> 

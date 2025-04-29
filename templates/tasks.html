@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>任务列表</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background: #34495e;
+        }
+        .nav a.active {
+            background: #3498db;
+        }
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .task-table th, .task-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .task-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .status-pending {
+            background: #f1c40f;
+            color: #fff;
+        }
+        .status-running {
+            background: #3498db;
+            color: #fff;
+        }
+        .status-completed {
+            background: #2ecc71;
+            color: #fff;
+        }
+        .status-failed {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            margin-right: 5px;
+        }
+        .start-btn {
+            background: #2ecc71;
+        }
+        .view-btn {
+            background: #3498db;
+        }
+        .delete-btn {
+            background: #e74c3c;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .empty-state p {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        /* 添加按钮禁用状态样式 */
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        /* 添加动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .task-table tbody tr {
+            animation: fadeIn 0.3s ease-in;
+        }
+        /* 添加加载动画 */
+        @keyframes progress {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+        .progress-fill.active {
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.15) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.15) 50%,
+                rgba(255, 255, 255, 0.15) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 50px 50px;
+            animation: progress 2s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-container">
+            <a href="/dashboard">仪表盘</a>
+            <a href="/projects">项目管理</a>
+            <a href="/vulnerabilities">漏洞管理</a>
+            <a href="/tasks" class="active">任务列表</a>
+            <div style="margin-left: auto;">
+                <a href="/logout" class="logout-btn">退出登录</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>扫描任务列表</h1>
+        </div>
+
+        {{if .tasks}}
+        <table class="task-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>项目名称</th>
+                    <th>目标URL</th>
+                    <th>扫描类型</th>
+                    <th>状态</th>
+                    <th>进度</th>
+                    <th>发现漏洞数</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .tasks}}
+                <tr data-task-id="{{.ID}}">
+                    <td>{{.ID}}</td>
+                    <td>{{.ProjectName}}</td>
+                    <td>{{.TargetURL}}</td>
+                    <td>
+                        {{if eq .ScanType "full"}}完整扫描{{else}}自定义扫描{{end}}
+                    </td>
+                    <td>
+                        {{if eq .Status "pending"}}
+                        <span class="status-badge status-pending">等待中</span>
+                        {{else if eq .Status "running"}}
+                        <span class="status-badge status-running">扫描中</span>
+                        {{else if eq .Status "completed"}}
+                        <span class="status-badge status-completed">已完成</span>
+                        {{else if eq .Status "terminated"}}
+                        <span class="status-badge status-error">已终止</span>
+                        {{else if eq .Status "error"}}
+                        <span class="status-badge status-error">出错</span>
+                        {{else}}
+                        <span class="status-badge status-failed">失败</span>
+                        {{end}}
+                    </td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{.Progress}}%;"></div>
+                        </div>
+                    </td>
+                    <td>{{.VulnerabilityCount}}</td>
+                    <td>{{formatTime .CreatedAt}}</td>
+                    <td>
+                        {{if eq .Status "pending"}}
+                        <button class="action-btn start-btn" onclick="startTask({{.ID}}, '{{.TargetURL}}', '{{.ScanType}}', '{{.SelectedPocs}}')">开始扫描</button>
+                        {{end}}
+                        <button class="action-btn view-btn" onclick="location.href='/projects/{{.ProjectID}}'">查看项目</button>
+                        {{if eq .Status "running"}}
+                        <button class="action-btn delete-btn" onclick="stopTask({{.ID}}, {{.ProjectID}})">终止</button>
+                        {{end}}
+                        <button class="action-btn delete-btn" onclick="deleteTask({{.ID}}, '{{.Status}}')">删除</button>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{else}}
+        <div class="empty-state">
+            <h3>暂无任务</h3>
+            <p>请先在项目列表中创建扫描任务</p>
+            <button onclick="location.href='/projects'" class="action-btn view-btn">前往项目列表</button>
+        </div>
+        {{end}}
+    </div>
+
+    <script>
+        // 添加防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 优化DOM查询，缓存常用选择器
+        const getTaskRow = (taskId) => document.querySelector(`tr[data-task-id="${taskId}"]`);
+        const getStatusCell = (row) => row.querySelector('td:nth-child(5)');
+        const getProgressBar = (row) => row.querySelector('.progress-fill');
+
+        // 统一的状态更新函数
+        function updateTaskStatus(taskId, status, message) {
+            const row = getTaskRow(taskId);
+            if (!row) return;
+
+            const statusCell = getStatusCell(row);
+            if (statusCell) {
+                let statusClass = '';
+                switch (status) {
+                    case 'pending': statusClass = 'status-pending'; break;
+                    case 'running': statusClass = 'status-running'; break;
+                    case 'completed': statusClass = 'status-completed'; break;
+                    case 'error': 
+                    case 'terminated': 
+                    case 'failed': statusClass = 'status-error'; break;
+                }
+                statusCell.innerHTML = `<span class="status-badge ${statusClass}">${message}</span>`;
+            }
+        }
+
+        // 优化的任务状态检查函数
+        function checkTaskStatus(id) {
+            const row = getTaskRow(id);
+            if (!row) return;
+
+            const progressBar = getProgressBar(row);
+            if (progressBar) {
+                progressBar.classList.add('active');
+            }
+
+            return fetch(`/tasks/${id}/status`)
+                .then(response => response.ok ? response.json() : Promise.reject('获取状态失败'))
+                .then(statusData => {
+                    if (progressBar) {
+                        progressBar.style.width = `${statusData.progress}%`;
+                    }
+
+                    let statusMessage = '';
+                    switch (statusData.status) {
+                        case 'pending': statusMessage = '等待中'; break;
+                        case 'running': statusMessage = '扫描中'; break;
+                        case 'completed': statusMessage = '已完成'; break;
+                        case 'terminated': statusMessage = '已终止'; break;
+                        case 'error': statusMessage = '出错'; break;
+                        default: statusMessage = '失败';
+                    }
+
+                    updateTaskStatus(id, statusData.status, statusMessage);
+                    return statusData;
+                });
+        }
+
+        // 优化的开始任务函数
+        function startTask(id, targetURL, scanType, selectedPocs) {
+            if (!confirm('确定要开始扫描这个任务吗？')) return;
+
+            const row = getTaskRow(id);
+            if (!row) return;
+
+            const button = row.querySelector('.start-btn');
+            if (button) {
+                button.disabled = true;
+                button.innerText = '扫描中...';
+            }
+
+            fetch(`/tasks/${id}/start`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({targetURL, scanType, selectedPocs})
+            })
+            .then(response => response.ok ? response.json() : Promise.reject('启动扫描失败'))
+            .then(() => {
+                const progressBar = getProgressBar(row);
+                if (progressBar) {
+                    progressBar.classList.add('active');
+                }
+
+                const statusCheckInterval = setInterval(() => {
+                    checkTaskStatus(id)
+                        .then(statusData => {
+                            if (['completed', 'failed'].includes(statusData.status)) {
+                                clearInterval(statusCheckInterval);
+                                const progressBar = getProgressBar(row);
+                                if (progressBar) {
+                                    progressBar.classList.remove('active');
+                                }
+                                if (statusData.status === 'completed') {
+                                    alert('扫描完成！');
+                                    location.reload();
+                                }
+                            }
+                        })
+                        .catch(() => {
+                            clearInterval(statusCheckInterval);
+                            if (button) {
+                                button.disabled = false;
+                                button.innerText = '开始扫描';
+                            }
+                        });
+                }, 3000);
+            })
+            .catch(error => {
+                alert(error);
+                if (button) {
+                    button.disabled = false;
+                    button.innerText = '开始扫描';
+                }
+            });
+        }
+
+        // 优化的终止任务函数
+        function stopTask(taskId, projectId) {
+            if (!confirm('确定要终止该扫描任务吗？')) return;
+
+            const row = getTaskRow(taskId);
+            if (!row) return;
+
+            const button = row.querySelector('.delete-btn');
+            if (button) {
+                button.disabled = true;
+                button.innerText = '正在终止...';
+            }
+
+            updateTaskStatus(taskId, 'terminated', '正在终止...');
+
+            function stopScan(retryCount = 0) {
+                fetch(`/projects/${projectId}/scan/stop`, {
+                    method: 'POST'
+                })
+                .then(response => response.ok ? response.json() : Promise.reject('终止扫描失败'))
+                .then(() => {
+                    updateTaskStatus(taskId, 'terminated', '已终止');
+                    if (button) {
+                        button.style.display = 'none';
+                    }
+                    alert('扫描已成功终止');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (retryCount < 3) {
+                        setTimeout(() => stopScan(retryCount + 1), 1000);
+                    } else {
+                        updateTaskStatus(taskId, 'error', '终止失败');
+                        alert('终止扫描失败，请稍后重试');
+                        if (button) {
+                            button.disabled = false;
+                            button.innerText = '终止';
+                        }
+                    }
+                });
+            }
+
+            stopScan();
+        }
+
+        // 优化的删除任务函数
+        const deleteTask = debounce((taskId, status) => {
+            const confirmMessage = status === 'running' 
+                ? '该任务正在运行中，删除后将无法恢复！确定要删除吗？'
+                : '确定要删除该任务吗？此操作不可恢复！';
+
+            if (!confirm(confirmMessage)) return;
+
+            const row = getTaskRow(taskId);
+            if (!row) return;
+
+            const button = row.querySelector('.delete-btn');
+            if (button) {
+                button.disabled = true;
+                button.innerText = '正在删除...';
+            }
+
+            if (status === 'running') {
+                updateTaskStatus(taskId, 'terminated', '正在删除...');
+            }
+
+            deleteTaskRequest(taskId);
+        }, 300);
+
+        // 优化的删除请求函数
+        function deleteTaskRequest(taskId) {
+            fetch(`/tasks/${taskId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.ok ? response.json() : Promise.reject('删除任务失败'))
+            .then(data => {
+                if (data.message) {
+                    const row = getTaskRow(taskId);
+                    if (row) {
+                        row.style.transition = 'opacity 0.5s';
+                        row.style.opacity = '0';
+                        setTimeout(() => {
+                            row.remove();
+                            const tbody = document.querySelector('.task-table tbody');
+                            if (tbody && !tbody.hasChildNodes()) {
+                                location.reload();
+                            }
+                        }, 500);
+                    }
+                    alert('任务已成功删除');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('删除任务失败：' + error);
+                const row = getTaskRow(taskId);
+                if (row) {
+                    const button = row.querySelector('.delete-btn');
+                    if (button) {
+                        button.disabled = false;
+                        button.innerText = '删除';
+                    }
+                    if (status === 'running') {
+                        updateTaskStatus(taskId, 'running', '扫描中');
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

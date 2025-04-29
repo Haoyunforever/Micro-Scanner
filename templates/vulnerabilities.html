@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>漏洞详情</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background: #34495e;
+        }
+        .nav a.active {
+            background: #3498db;
+        }
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filter-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .search-btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-btn {
+            padding: 8px 16px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .vuln-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .vuln-table th,
+        .vuln-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .vuln-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .severity-high {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .severity-medium {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .severity-low {
+            color: #3498db;
+            font-weight: bold;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        .pagination a {
+            padding: 8px 12px;
+            background: white;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #2c3e50;
+        }
+        .pagination a.active {
+            background: #3498db;
+            color: white;
+        }
+        .vuln-link {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        .vuln-link:hover {
+            text-decoration: underline;
+        }
+        .tag {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        .view-btn, .delete-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .view-btn {
+            background: #3498db;
+            color: white;
+        }
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .detail-item {
+            margin-bottom: 20px;
+        }
+        .detail-item label {
+            font-weight: bold;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .detail-item p {
+            margin: 0;
+            line-height: 1.5;
+        }
+        .detail-item pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+        .detail-item a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .detail-item a:hover {
+            text-decoration: underline;
+        }
+        .modal-content {
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .severity-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea.modal-input {
+            font-family: monospace;
+            resize: vertical;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .save-btn, .cancel-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .save-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .cancel-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .vulnerability-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .vulnerability-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+        .vulnerability-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .vulnerability-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .vulnerability-title {
+            margin: 0;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .vulnerability-severity {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .severity-高 {
+            background-color: #ff4444;
+            color: white;
+        }
+        .vulnerability-tags {
+            margin: 10px 0;
+        }
+        .vulnerability-actions {
+            margin-top: 15px;
+            text-align: right;
+        }
+        .required {
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .vulnerability-info {
+            margin-bottom: 10px;
+        }
+        .poc-id {
+            font-size: 0.9em;
+            color: #2c3e50;
+        }
+        .log-entry {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .log-entry.command {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .log-entry.progress {
+            background-color: #f5f5f5;
+            color: #616161;
+        }
+        .log-entry.vuln {
+            background-color: #ffebee;
+            color: #c62828;
+            font-weight: bold;
+        }
+        .log-entry.error {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        .log-entry.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .log-entry.warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        #scanProgress {
+            transition: width 0.3s ease;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-container">
+            <a href="/dashboard">仪表盘</a>
+            <a href="/projects">项目管理</a>
+            <a href="/vulnerabilities" class="active">漏洞管理</a>
+            <a href="/tasks">任务列表</a>
+            <div style="margin-left: auto;">
+                <a href="/logout" class="logout-btn">退出登录</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>漏洞管理</h1>
+            <button onclick="location.href='/vulnerabilities/new'" class="add-btn">新增漏洞</button>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-item search-box">
+                    <input type="text" id="searchInput" placeholder="搜索漏洞名称或描述..." value="{{.query}}">
+                    <button onclick="applyFilters()" class="search-btn">搜索</button>
+                </div>
+                <div class="filter-item">
+                    <label>严重程度：</label>
+                    <select id="severity" onchange="applyFilters()">
+                        <option value="">全部</option>
+                        <option value="高" {{if eq .severity "高"}}selected{{end}}>高危</option>
+                        <option value="中" {{if eq .severity "中"}}selected{{end}}>中危</option>
+                        <option value="低" {{if eq .severity "低"}}selected{{end}}>低危</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="vulnerability-list">
+            {{range .vulnerabilities}}
+            <div class="vulnerability-card">
+                <div class="vulnerability-header">
+                    <h3 class="vulnerability-title">{{.Title}}</h3>
+                    <span class="vulnerability-severity severity-{{lower .Severity}}">{{.Severity}}</span>
+                </div>
+                <div class="vulnerability-info">
+                    <p class="poc-id">编号：{{.PocID}}</p>
+                </div>
+                <div class="vulnerability-tags">
+                    {{range .TagList}}
+                    <span class="tag">{{.}}</span>
+                    {{end}}
+                </div>
+                <div class="vulnerability-actions">
+                    <button class="btn btn-primary btn-sm" onclick="showPocDetails('{{.Title}}')">查看POC</button>
+                </div>
+            </div>
+            {{end}}
+        </div>
+
+        <div id="detailsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>漏洞详情</h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-item">
+                        <label>漏洞名称：</label>
+                        <input type="text" id="modalTitle" class="modal-input" />
+                    </div>
+                    <div class="detail-item">
+                        <label>漏洞链接：</label>
+                        <input type="text" id="modalLink" class="modal-input" />
+                    </div>
+                    <div class="detail-item">
+                        <label>严重程度：</label>
+                        <select id="modalSeverity" class="modal-input">
+                            <option value="高">高</option>
+                            <option value="中">中</option>
+                            <option value="低">低</option>
+                        </select>
+                    </div>
+                    <div class="detail-item">
+                        <label>漏洞描述：</label>
+                        <textarea id="modalDescription" class="modal-input" rows="3"></textarea>
+                    </div>
+                    <div class="detail-item">
+                        <label>标签：</label>
+                        <input type="text" id="modalTags" class="modal-input" placeholder="多个标签用逗号分隔" />
+                    </div>
+                    <div class="detail-item">
+                        <label>POC规则：</label>
+                        <textarea id="modalPoc" class="modal-input" rows="10"></textarea>
+                    </div>
+                    <div class="modal-buttons">
+                        <button id="saveBtn" class="save-btn">保存</button>
+                        <button id="cancelBtn" class="cancel-btn">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pagination">
+            {{range .pages}}
+                <a href="?page={{.}}{{if $.query}}&q={{$.query}}{{end}}{{if $.severity}}&severity={{$.severity}}{{end}}" 
+                   class="{{if eq . $.currentPage}}active{{end}}">{{.}}</a>
+            {{end}}
+        </div>
+    </div>
+
+    <!-- POC详情模态框 -->
+    <div class="modal fade" id="pocDetailsModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">POC详情</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-item">
+                        <label>文件名：</label>
+                        <p id="pocFileName"></p>
+                    </div>
+                    <div class="detail-item">
+                        <label>POC内容：</label>
+                        <pre><code id="pocContent" class="yaml"></code></pre>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="$('#pocDetailsModal').modal('hide')" class="cancel-btn">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加扫描日志模态框 -->
+    <div class="modal fade" id="scanLogModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">扫描日志</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="scan-log-container" style="height: 400px; overflow-y: auto; background: #f8f9fa; padding: 15px; font-family: monospace;">
+                        <div id="logContent"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function applyFilters() {
+        const query = document.getElementById('searchInput').value;
+        const severity = document.getElementById('severity').value;
+        
+        let url = '/vulnerabilities?';
+        if (query) url += `q=${encodeURIComponent(query)}&`;
+        if (severity) url += `severity=${encodeURIComponent(severity)}&`;
+        
+        window.location.href = url;
+    }
+
+    const modal = document.getElementById('detailsModal');
+    const span = document.getElementsByClassName('close')[0];
+
+    // 全局变量存储当前操作的漏洞标题
+    let currentVulnTitle = '';
+
+    function showVulnDetails(title) {
+        currentVulnTitle = title;
+        
+        fetch(`/vulnerabilities/detail/${encodeURIComponent(title)}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('modalTitle').value = data.title;
+                document.getElementById('modalLink').value = data.link || '';
+                document.getElementById('modalSeverity').value = data.severity;
+                document.getElementById('modalDescription').value = data.description || '';
+                document.getElementById('modalTags').value = data.tags.join(', ');
+                document.getElementById('modalPoc').value = data.poc_yaml || '';
+                
+                modal.style.display = 'block';
+            });
+    }
+
+    // 保存按钮事件
+    document.getElementById('saveBtn').addEventListener('click', function() {
+        const updatedVuln = {
+            title: document.getElementById('modalTitle').value,
+            link: document.getElementById('modalLink').value,
+            severity: document.getElementById('modalSeverity').value,
+            description: document.getElementById('modalDescription').value,
+            tags: document.getElementById('modalTags').value,
+            poc_yaml: document.getElementById('modalPoc').value
+        };
+        
+        fetch(`/vulnerabilities/update/${encodeURIComponent(currentVulnTitle)}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedVuln)
+        }).then(response => {
+            if (response.ok) {
+                alert('更新成功');
+                modal.style.display = 'none';
+                window.location.reload();
+            } else {
+                alert('更新失败');
+            }
+        });
+    });
+
+    // 取消按钮事件
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    // 关闭按钮事件
+    document.getElementsByClassName('close')[0].onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    function deleteVulnerability(title) {
+        if (confirm('确定要删除这个漏洞吗？')) {
+            fetch(`/vulnerabilities/${encodeURIComponent(title)}`, {
+                method: 'DELETE'
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('删除失败');
+                }
+            });
+        }
+    }
+
+    function showPocDetails(filename) {
+        fetch(`/poc/${encodeURIComponent(filename)}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('pocFileName').textContent = data.filename;
+                const pocContent = document.getElementById('pocContent');
+                pocContent.textContent = data.content;
+                
+                // 如果使用了highlight.js，应用语法高亮
+                if (typeof hljs !== 'undefined') {
+                    hljs.highlightElement(pocContent);
+                }
+                
+                $('#pocDetailsModal').modal('show');
+            })
+            .catch(error => {
+                console.error('Error fetching POC details:', error);
+                alert('获取POC详情失败');
+            });
+    }
+
+    // 在文档加载完成后初始化代码高亮
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof hljs !== 'undefined') {
+            hljs.highlightAll();
+        }
+    });
+
+    // WebSocket连接函数
+    function connectWebSocket(projectId) {
+        const ws = new WebSocket(`ws://${window.location.host}/ws/scan/${projectId}`);
+        const logContent = document.getElementById('logContent');
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            let message = '';
+            let shouldScroll = true;
+
+            switch(data.status) {
+                case 'command':
+                    message = `<div class="log-entry command">[CMD] ${data.message}</div>`;
+                    break;
+                case 'scanner_progress':
+                    message = `<div class="log-entry progress">[进度] ${data.message}</div>`;
+                    break;
+                case 'vuln_found':
+                    message = `<div class="log-entry vuln">[漏洞] ${data.message}</div>`;
+                    break;
+                case 'error':
+                    message = `<div class="log-entry error">[错误] ${data.message}</div>`;
+                    break;
+                case 'completed':
+                    message = `<div class="log-entry success">[完成] ${data.message}</div>`;
+                    // 刷新页面以显示最新结果
+                    setTimeout(() => location.reload(), 2000);
+                    break;
+                case 'terminated':
+                    message = `<div class="log-entry warning">[终止] ${data.message}</div>`;
+                    setTimeout(() => location.reload(), 2000);
+                    break;
+                case 'progress':
+                    // 更新进度条
+                    const progressBar = document.getElementById('scanProgress');
+                    if (progressBar) {
+                        progressBar.style.width = `${data.message}%`;
+                        progressBar.textContent = `${data.message}%`;
+                    }
+                    shouldScroll = false;
+                    break;
+                default:
+                    message = `<div class="log-entry">${data.message}</div>`;
+            }
+
+            if (message && logContent) {
+                logContent.innerHTML += message;
+                if (shouldScroll) {
+                    logContent.scrollTop = logContent.scrollHeight;
+                }
+            }
+        };
+
+        ws.onclose = function() {
+            console.log('WebSocket连接已关闭');
+        };
+
+        ws.onerror = function(error) {
+            console.error('WebSocket错误:', error);
+        };
+    }
+
+    // 开始扫描时显示日志模态框
+    function showScanLog(projectId) {
+        $('#scanLogModal').modal('show');
+        const ws = connectWebSocket(projectId);
+        
+        // 模态框关闭时断开WebSocket连接
+        $('#scanLogModal').on('hidden.bs.modal', function () {
+            ws.close();
+        });
+    }
+    </script>
+</body>
+</html> 

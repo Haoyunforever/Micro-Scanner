@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>新增项目</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background: #34495e;
+        }
+        .nav a.active {
+            background: #3498db;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-control:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .radio-option input[type="radio"] {
+            margin-right: 8px;
+        }
+        .error-message {
+            color: #e74c3c;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #fdf0ed;
+            border-radius: 4px;
+        }
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding: 20px 0;
+            background: white;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+        .poc-selection {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .poc-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .poc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .poc-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .poc-item:hover {
+            background-color: #f8f9fa;
+        }
+        .poc-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .select-all-container {
+            margin-right: 15px;
+        }
+        .selected-count {
+            color: #666;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-container">
+            <a href="/dashboard">仪表盘</a>
+            <a href="/projects">项目管理</a>
+            <a href="/vulnerabilities">漏洞管理</a>
+            <a href="/tasks">任务列表</a>
+            <div style="margin-left: auto;">
+                <a href="/logout" class="logout-btn">退出登录</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>新增项目</h1>
+        
+        {{if .error}}
+        <div class="error-message">{{.error}}</div>
+        {{end}}
+        
+        <form action="/projects" method="POST" onsubmit="return validateForm()">
+            <div class="form-group">
+                <label for="name">项目名称</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{.project.Name}}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="targetUrl">目标URL</label>
+                <input type="url" id="targetUrl" name="target_url" class="form-control" value="{{.project.TargetURL}}" 
+                       placeholder="例如: https://example.com" required>
+            </div>
+            
+            <div class="form-group scan-type-group">
+                <label>扫描类型</label>
+                <select name="scan_type" id="scanType" required onchange="togglePocSelection()">
+                    <option value="full">完整扫描</option>
+                    <option value="custom">自定义扫描</option>
+                </select>
+            </div>
+            
+            <div class="form-group poc-selection" id="pocSelection" style="display: none;">
+                <div class="poc-header">
+                    <div class="select-all-container">
+                        <input type="checkbox" id="selectAll" onchange="toggleAllPocs()">
+                        <label for="selectAll">全选</label>
+                    </div>
+                    <span class="selected-count" id="selectedCount">已选择: 0</span>
+                </div>
+                <div class="poc-list">
+                    {{range .pocFiles}}
+                    <div class="poc-item">
+                        <input type="checkbox" name="selected_pocs" value="{{.}}" class="poc-checkbox" onchange="updateSelectedCount()">
+                        <label>{{.}}</label>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">项目描述</label>
+                <textarea id="description" name="description" class="form-control" rows="4">{{.project.Description}}</textarea>
+            </div>
+            
+            <div class="form-buttons">
+                <a href="/projects" class="btn btn-cancel">取消</a>
+                <button type="submit" class="btn btn-primary">创建项目</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function togglePocSelection() {
+            const scanType = document.getElementById('scanType').value;
+            const pocSelection = document.getElementById('pocSelection');
+            pocSelection.style.display = scanType === 'custom' ? 'block' : 'none';
+            
+            if (scanType !== 'custom') {
+                // 如果不是自定义扫描，取消所有选中
+                document.querySelectorAll('.poc-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                updateSelectedCount();
+            }
+        }
+
+        function toggleAllPocs() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.poc-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const selectedCount = document.querySelectorAll('.poc-checkbox:checked').length;
+            document.getElementById('selectedCount').textContent = `已选择: ${selectedCount}`;
+            
+            // 更新全选框状态
+            const totalCount = document.querySelectorAll('.poc-checkbox').length;
+            const selectAll = document.getElementById('selectAll');
+            selectAll.checked = selectedCount === totalCount;
+            selectAll.indeterminate = selectedCount > 0 && selectedCount < totalCount;
+        }
+
+        function validateForm() {
+            const scanType = document.getElementById('scanType').value;
+            if (scanType === 'custom') {
+                const selectedPocs = document.querySelectorAll('.poc-checkbox:checked');
+                if (selectedPocs.length === 0) {
+                    alert('请至少选择一个 POC');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            togglePocSelection();
+            updateSelectedCount();
+        });
+    </script>
+</body>
+</html> 
