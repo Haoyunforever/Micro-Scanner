@@ -1,0 +1,31 @@
+name: File Inclusion Vulnerability
+set:
+  vulID: FI-001
+  version: '1.0'
+  author: YourName
+  vulDate: '2023-01-01'
+  createDate: '2023-01-01'
+  updateDate: '2023-01-01'
+  references:
+    - https://example.com
+  appPowerLink: https://example.com
+  appName: Web Application
+  appVersion: All
+  vulType: File Inclusion
+  desc: File Inclusion vulnerability in web application
+  samples:
+    - http://example.com
+
+rules:
+  - method: GET
+    path: /?file=../../../../etc/passwd
+    headers:
+      User-Agent: Mozilla/5.0
+    expression: |
+      response.status == 200 && 
+      response.body.bcontains(b"root:")
+
+detail:
+  author: YourName
+  links:
+    - https://example.com
