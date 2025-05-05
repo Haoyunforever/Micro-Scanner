@@ -10,7 +10,7 @@ var MsgFlags = map[int]string{
 	ERROR_GEN_TOKEN:      "Token 生成失败",
 }
 
-func GetMsgFlag(code int) string {
+func GetMsg(code int) string {
 	msg, ok := MsgFlags[code]
 	if ok {
 		return msg
