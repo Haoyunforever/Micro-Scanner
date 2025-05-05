@@ -7,8 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/Haoyunforever/Micro-Scanner/website/gateway/ctl"
-	"github.com/Haoyunforever/Micro-Scanner/website/gateway/utils"
+	"github.com/Haoyunforever/Micro-Scanner/pkg/utils"
 )
 
 // JWT token验证中间件
@@ -49,7 +48,8 @@ func JWT() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		ctl.InitUserInfo(c.Request.Context(), &ctl.UserInfo{Id: claims.Id})
+
+		//ctl.InitUserInfo(c.Request.Context(), &ctl.UserInfo{Id: claims.Id})
 		c.Next()
 	}
 }
